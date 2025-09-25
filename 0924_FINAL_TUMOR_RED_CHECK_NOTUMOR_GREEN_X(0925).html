@@ -808,7 +808,7 @@
 
   <script>
     const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-    const API_BASE = 'http://127.0.0.1:8000';
+    const API_BASE = 'https://pants-backend.onrender.com';
     const _NULLS = new Set(['', 'nan', 'NaN', 'None', 'NULL', 'null', 'undefined']);
     const _T = (x) => { const s = String(x ?? '').trim(); return _NULLS.has(s) ? '' : s; };
 
