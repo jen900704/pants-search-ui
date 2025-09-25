@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PanTS Search — Hopkins v6 (Advanced box fixed)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #0a2a66;
+      --navy2: #123579;
+      --ink: #0b1020;
+      --muted: #667085;
+      --line: #e5e7eb;
+      --gold: #f5b300;
+      --bg: #f6f8fb;
+      --ok: #0d7d3a;
+      --bad: #ef4444;
+      --blue: #1a73e8;
+      --chip: #f9fbff;
+      --chip-bd: #dfe6ff;
+      --rec1: #f7fbff;
+      --rec2: #eef6ff;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      font: 14px/1.55 "Inter", system-ui, Segoe UI, Arial;
+      background: var(--bg);
+      color: var(--ink)
+    }
+
+    a {
+      color: #1677ff;
+      text-decoration: none
+    }
+
+    header {
+      background: linear-gradient(180deg, var(--navy), var(--navy2));
+      color: #fff
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      font-weight: 800
+    }
+
+    .brand {
+      font-weight: 700
+    }
+
+    .team {
+      margin-left: auto;
+      opacity: .9;
+      font-size: 12px
+    }
+
+    h1 {
+      margin: 10px 0 12px;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: .2px
+    }
+
+    .searchRow {
+      display: flex;
+      gap: 10px;
+      align-items: center
+    }
+
+    .searchBox {
+      flex: 1;
+      background: #fff;
+      border: 1px solid #dbe5ff;
+      border-radius: 999px;
+      padding: 10px 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .12)
+    }
+
+    .searchBox input {
+      flex: 1;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      font-size: 16px;
+      padding: 8px 6px;
+      color: var(--ink)
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: #fff;
+      color: var(--ink)
+    }
+
+    .btn.gold {
+      background: var(--gold);
+      color: #111;
+      border-color: #00000010
+    }
+
+    .btn.ghost {
+      background: #fff;
+      border: 1.5px solid #e6ecff
+    }
+
+    .btn.outline {
+      background: #fff;
+      border: 1.5px solid var(--blue);
+      color: var(--blue)
+    }
+
+    .btn[aria-busy="true"] {
+      opacity: .7;
+      pointer-events: none
+    }
+
+    /* 顶部 Filter 卡片 */
+    .filters {
+      margin-top: 12px;
+      background: #fff;
+      border: 1px solid #e7ebff;
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .08);
+      position: relative;
+      /* 為了下面的 seam 線 */
+    }
+
+    /* Advanced 打開時讓上卡片下緣變直角並畫一條柔和分隔線 */
+    .filters.glued {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      margin-bottom: 0;
+    }
+
+    .filters.glued::after {
+      content: "";
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: -1px;
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ffffff 0%, #cfe0ff 30%, #cfe0ff 70%, #ffffff 100%);
+      pointer-events: none;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px
+    }
+
+    .label {
+      font-size: 12px;
+      font-weight: 900;
+      color: #0a2a66;
+      margin-bottom: 6px
+    }
+
+    .chips {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .chip {
+      background: var(--chip);
+      color: var(--ink);
+      border: 1px solid var(--chip-bd);
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 800
+    }
+
+    .chip[aria-checked="true"] {
+      background: #0b1020;
+      color: #fff;
+      border-color: #0b1020;
+      box-shadow: inset 0 0 0 1.5px #fff
+    }
+
+    #sexChips .chip[data-sex="F"][aria-checked="true"] {
+      background: #b084f5;
+      border-color: #b084f5
+    }
+
+    #sexChips .chip[data-sex="M"][aria-checked="true"] {
+      background: #60a5fa;
+      border-color: #60a5fa
+    }
+
+    select,
+    input[type=number] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #d7dcff;
+      color: var(--ink);
+      background: #fff
+    }
+
+    .range {
+      position: relative;
+      height: 44px
+    }
+
+    .track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 22px;
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 2px
+    }
+
+    .fill {
+      position: absolute;
+      top: 22px;
+      height: 4px;
+      background: linear-gradient(90deg, #6aa8ff, #0a6bff);
+      border-radius: 2px
+    }
+
+    input[type=range] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 44px;
+      background: transparent;
+      appearance: none;
+      pointer-events: none
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      pointer-events: auto;
+      -webkit-appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #0a6bff;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .2);
+      cursor: pointer
+    }
+
+    input[type=range]::-moz-range-thumb {
+      pointer-events: auto;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #0a6bff;
+      border: 0;
+      cursor: pointer
+    }
+
+    .bubble {
+      position: absolute;
+      top: 2px;
+      transform: translateX(-50%);
+      background: #111;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 12px
+    }
+
+    .bubble:after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -6px;
+      border: 6px solid transparent;
+      border-top-color: #111
+    }
+
+    .range.disabled {
+      pointer-events: none;
+      opacity: .45;
+      filter: grayscale(20%)
+    }
+
+    .range.disabled .fill {
+      background: #cbd5e1
+    }
+
+    .yearbox.disabled {
+      pointer-events: none;
+      opacity: .45;
+      filter: grayscale(20%)
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap
+    }
+
+    .split {
+      display: inline-grid;
+      grid-template-columns: 1fr 18px 1fr;
+      align-items: center;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: 0 6px 14px rgba(10, 42, 102, .08)
+    }
+
+    .split .half {
+      padding: 8px 12px;
+      background: #f6f9ff;
+      color: #var(--ink);
+      cursor: pointer;
+      border: 0;
+      font-weight: 800
+    }
+
+    .split .mid {
+      width: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      background: #fff
+    }
+
+    .split .half.on.cards {
+      color: #fff;
+      background: linear-gradient(90deg, #8e9bff, #4a6bff)
+    }
+
+    .split .half.on.table {
+      color: #fff;
+      background: linear-gradient(90deg, #2ac1a5, #00a3ff)
+    }
+
+    .selectWrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 6px 8px;
+      background: #fff
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px
+    }
+
+    @media (max-width:900px) {
+      .results {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 6px 18px rgba(10, 42, 102, .08)
+    }
+
+    .head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px
+    }
+
+    .tag {
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 800;
+      padding: 6px 12px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px 12px;
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .kv i {
+      font-size: 16px;
+      color: #6b7280
+    }
+
+    .tableWrap {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px
+    }
+
+    th {
+      font-size: 12px;
+      color: #6b7280;
+      text-align: left
+    }
+
+    .gPager {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 18px 0
+    }
+
+    .gPager .btnp {
+      cursor: pointer;
+      user-select: none;
+      font-weight: 800;
+      color: var(--blue);
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 6px 10px
+    }
+
+    .gPager .btnp[aria-disabled="true"] {
+      opacity: .4;
+      pointer-events: none;
+      cursor: default;
+      color: #999;
+      border-color: #eee;
+      background: #f9f9f9
+    }
+
+    .gPager .btnp.active {
+      background: #1677ff;
+      color: #fff;
+      border-color: #1677ff;
+      cursor: default;
+      pointer-events: none
+    }
+
+    aside.recs {
+      position: relative;
+      background: linear-gradient(180deg, var(--rec1), var(--rec2));
+      border: 1px solid #dfe6ff;
+      border-radius: 18px;
+      padding: 14px 14px 22px;
+      box-shadow: 0 10px 22px rgba(10, 42, 102, .12)
+    }
+
+    .recTitle {
+      font-weight: 900;
+      color: #0a2a66;
+      margin: 12px 6px 14px
+    }
+
+    .recList {
+      display: flex;
+      flex-direction: column;
+      gap: 14px
+    }
+
+    .rec {
+      background: #fff;
+      border: 1px solid #e9efff;
+      border-radius: 14px;
+      padding: 14px 14px 56px 14px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 8px;
+      position: relative
+    }
+
+    .recMain {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+      padding-right: 118px
+    }
+
+    .small {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid #e7ecff;
+      border-radius: 999px;
+      background: #f9fbff;
+      color: #0b1020;
+      font-size: 12px
+    }
+
+    .recBtns {
+      position: absolute;
+      right: 12px;
+      bottom: 12px
+    }
+
+    .recId a {
+      font-weight: 800
+    }
+
+    .tBadge {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid;
+      z-index: 2
+    }
+
+    aside.recs:before {
+      content: "";
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      top: 6px;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #fff 0%, #b7d2ff 30%, #b7d2ff 70%, #fff 100%);
+      opacity: .9;
+      pointer-events: none
+    }
+
+    /* Tumor 紅 ✔ / No tumor 綠 × */
+    .tag.y {
+      background: #fff0f3;
+      color: #ef4444;
+      border-color: #ffd3de
+    }
+
+    .tag.n {
+      background: #ecfff4;
+      color: #0d7d3a;
+      border-color: #bdf3d3
+    }
+
+    .tBadge.y {
+      background: #fff0f3;
+      color: var(--bad);
+      border-color: #ffd3de
+    }
+
+    .tBadge.n {
+      background: #ecfff4;
+      color: var(--ok);
+      border-color: #bdf3d3
+    }
+
+    /* Results 卡片右下角 Case ID */
+    #cards .card {
+      position: relative;
+      padding-bottom: 34px
+    }
+
+    #cards .card .caseId {
+      position: absolute;
+      right: 14px;
+      bottom: 10px;
+      font-weight: 800
+    }
+
+    #cards .card .caseId a {
+      color: #1677ff;
+      text-decoration: none
+    }
+
+    /* === Advanced filters 外框：與上方卡片對齊，無縫貼合 === */
+    #advBox {
+      display: none;
+      /* 內層內容寬 = 1200 - wrap 左右 padding 32px，這樣兩張卡左右完全對齊 */
+      max-width: calc(1200px - 32px);
+      margin: 0 auto;
+      background: #fff;
+      padding: 16px;
+      /* 用同一條邊框，頂部去掉一條，使之貼在上卡片下面 */
+      border: 1px solid #e7ebff;
+      border-top: 0;
+      border-radius: 0 0 16px 16px;
+      /* 與上卡片邊框重疊 1px，消除任何縫隙 */
+      margin-top: -1px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .08);
+    }
+
+    #advBox.open {
+      display: block
+    }
+
+    #advBox .advSec {
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f2f7
+    }
+
+    #advBox .advSec:last-child {
+      border-bottom: none
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="wrap">
+      <div class="top">
+        <div class="badge">JH</div>
+        <div class="brand">Johns Hopkins Medicine — Imaging</div>
+        <div class="team">CCVL Medical Team</div>
+      </div>
+      <h1>Find CT Cases fast — confidently.</h1>
+
+      <div class="searchRow">
+        <div class="searchBox">
+          <input id="caseid" placeholder="Search by ID (e.g., PanTS_00000012 or 12)" autocomplete="off" />
+        </div>
+        <button id="searchBtn" class="btn gold" type="button"><i class="ri-search-line"></i>Search</button>
+        <button id="resetBtn" class="btn ghost" type="button"><i class="ri-refresh-line"></i>Reset</button>
+      </div>
+
+      <div class="filters" id="filtersBox">
+        <div class="row">
+          <div>
+            <div class="label">Tumor</div>
+            <div class="chips" id="tumorChips">
+              <button type="button" class="chip" data-tumor="" aria-checked="true">Any</button>
+              <button type="button" class="chip" data-tumor="1"><i class="ri-check-line"></i>Yes</button>
+              <button type="button" class="chip" data-tumor="0"><i class="ri-close-line"></i>No</button>
+              <button type="button" class="chip" data-tumor="unknown">Unknown</button>
+            </div>
+          </div>
+          <div>
+            <div class="label">Sex</div>
+            <div class="chips" id="sexChips">
+              <button type="button" class="chip" data-sex="" aria-checked="true">Any</button>
+              <button type="button" class="chip" data-sex="F"><i class="ri-women-line"></i>Female</button>
+              <button type="button" class="chip" data-sex="M"><i class="ri-men-line"></i>Male</button>
+              <button type="button" class="chip" data-sex="unknown">Unknown</button>
+            </div>
+          </div>
+          <div>
+            <div class="label">Age</div>
+            <div class="chips" id="ageChips" style="margin-bottom:8px">
+              <button type="button" class="chip" data-age="" aria-checked="true">Any</button>
+              <button type="button" class="chip" data-age="unknown">Unknown</button>
+            </div>
+            <div class="range" id="ageRange">
+              <div class="track"></div>
+              <div class="fill" id="ageFill"></div>
+              <div class="bubble" id="bMin">0</div>
+              <div class="bubble" id="bMax">100</div>
+              <input type="range" id="ageMin" min="0" max="100" value="0">
+              <input type="range" id="ageMax" min="0" max="100" value="100">
+            </div>
+          </div>
+          <div>
+            <div class="label">CT phase</div>
+            <div class="chips" id="ctChips">
+              <button type="button" class="chip" data-ct="" aria-checked="true">Any</button>
+              <button type="button" class="chip" data-ct="unknown">Unknown</button>
+              <span id="ctFacetLoading" style="font-size:12px;color:#64748b;margin-left:6px">Loading…</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div style="grid-column:1 / -1; display:flex; justify-content:flex-start; gap:8px">
+            <button id="advBtn" class="btn ghost" type="button"><i class="ri-equalizer-line"></i> Advanced
+              filters</button>
+            <span id="status" style="display:none"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced filters 容器（與上方白卡無縫連結） -->
+    <div id="advBox">
+      <div style="font-weight:900;color:#0a2a66;margin-bottom:8px">Advanced filters</div>
+      <div id="advContent" style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px;"></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap" style="display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start">
+      <div>
+        <div id="resultsBarInline" style="max-width:1200px;margin:12px auto 0;padding:0 8px;"></div>
+        <div class="toolbar" style="justify-content:flex-end;margin-bottom:10px">
+          <div class="split" id="viewSplit">
+            <button class="half on cards" data-mode="res-cards" type="button">Results Cards</button>
+            <div class="mid">↔</div>
+            <button class="half" data-mode="res-table" type="button">Table</button>
+          </div>
+          <div class="selectWrap">Per page
+            <select id="perPage" style="margin-left:6px">
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="all">All</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="cards" class="results" aria-live="polite"></div>
+        <div id="table" class="tableWrap" style="display:none">
+          <table>
+            <thead>
+              <tr>
+                <th>tumor</th>
+                <th>sex / age</th>
+                <th>ct phase</th>
+                <th>manufacturer / model</th>
+                <th>study year</th>
+                <th>case</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="empty" class="tableWrap" style="display:none;text-align:center;color:#667085">
+          <div>No matches. Try these quick filters:</div>
+          <div id="smart" style="margin-top:8px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap"></div>
+        </div>
+        <div id="pager" class="gPager" style="display:none"></div>
+      </div>
+
+      <aside class="recs">
+        <div class="recTitle">Recommended cases</div>
+        <div id="recList" class="recList"></div>
+        <div class="recFoot"><button id="shuffleBtn" class="btn ghost" type="button"><i
+              class="ri-shuffle-line"></i>Shuffle</button></div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+    const API_BASE = 'http://127.0.0.1:8000';
+    const _NULLS = new Set(['', 'nan', 'NaN', 'None', 'NULL', 'null', 'undefined']);
+    const _T = (x) => { const s = String(x ?? '').trim(); return _NULLS.has(s) ? '' : s; };
+
+    function setAgeDisabled(d) { const el = document.getElementById('ageRange'); if (!el) return; el.classList.toggle('disabled', !!d); el.querySelectorAll('input[type="range"]').forEach(i => d ? i.setAttribute('disabled', 'disabled') : i.removeAttribute('disabled')); }
+    function setYearDisabled(d) { const box = document.getElementById('yearInputs'); if (!box) return; box.classList.toggle('disabled', !!d); box.querySelectorAll('input').forEach(i => d ? i.setAttribute('disabled', 'disabled') : i.removeAttribute('disabled')); }
+    function _bindOnce(el, type, handler, key) { if (!el) return; const k = key || handler.name || 'handler'; const reg = (el._evtBound = el._evtBound || {}); const sig = `${type}:${k}`; if (reg[sig]) return; el.addEventListener(type, handler); reg[sig] = true; }
+
+    const state = { caseid: '', tumor: '', sex: '', tumor_is_null: 0, sex_is_null: 0, age_from: 0, age_to: 100, age_is_null: 0, ct_phase: '', ct_is_null: 0, manufacturer: '', manufacturer_list: [], manufacturer_is_null: 0, year_from: '', year_to: '', year_is_null: 0, page: 1, per_page: '20' };
+    let mode = 'res-cards', resultsCache = [], resultsMeta = { total: 0, page: 1, pages: 1 }, fetchToken = 0;
+
+    function setChip(group, val) { const box = document.getElementById(group + 'Chips'); if (!box) return; box.querySelectorAll('.chip').forEach(b => b.setAttribute('aria-checked', ((b.dataset[group] ?? '') === val) ? 'true' : 'false')); state[group] = val; state.page = 1; if (group === 'tumor') state.tumor_is_null = 0; if (group === 'sex') state.sex_is_null = 0; }
+    function normRow(m) { const cid = (m['PanTS ID'] || m.case_id || '').toString().trim(); const man = _T(m.manufacturer), mdl = _T(m['manufacturer model']), yr = _T(m['study year']); const ct = _T(m['ct phase']); const sex = _T(m.sex); const age = (m.age == null || isNaN(+m.age)) ? '' : +m.age; return { tumor: String(m.tumor ?? ''), sex, age, ct, man, mdl, yr, cid_text: cid, cid_href: cid ? ('/viewer/' + encodeURIComponent(cid)) : '#' }; }
+    function tumorTag(n) {
+      const t = String(n.tumor ?? '').trim();
+      if (t === '1') { return `<span class="tag y"><i class="ri-check-line"></i>Tumor</span>`; }
+      else if (t === '0') { return `<span class="tag n"><i class="ri-close-line"></i>No tumor</span>`; }
+      else { return `<span class="tag n"><i class="ri-question-line"></i>Unknown</span>`; }
+    }
+
+    $('#caseid').oninput = e => { state.caseid = e.target.value.trim(); };
+
+    // Tumor / Sex chips
+    $$('#tumorChips .chip').forEach(b => b.onclick = () => { const v = b.dataset.tumor ?? ''; if (v === 'unknown') { state.tumor = ''; state.tumor_is_null = 1; $$('#tumorChips .chip').forEach(x => x.setAttribute('aria-checked', 'false')); b.setAttribute('aria-checked', 'true'); } else { state.tumor_is_null = 0; setChip('tumor', v); } state.page = 1; });
+    $$('#sexChips .chip').forEach(b => b.onclick = () => { const v = b.dataset.sex ?? ''; if (v === 'unknown') { state.sex = ''; state.sex_is_null = 1; $$('#sexChips .chip').forEach(x => x.setAttribute('aria-checked', 'false')); b.setAttribute('aria-checked', 'true'); } else { state.sex_is_null = 0; setChip('sex', v); } state.page = 1; });
+
+    // Age slider/chips
+    const ageMinEl = $('#ageMin'), ageMaxEl = $('#ageMax'), ageFillEl = $('#ageFill'), bMinEl = $('#bMin'), bMaxEl = $('#bMax');
+    function updateAge() { if (!ageMinEl || !ageMaxEl) return; state.age_is_null = 0; let a = +ageMinEl.value, b = +ageMaxEl.value; if (a > b) [a, b] = [b, a]; if (ageFillEl) { ageFillEl.style.left = a + '%'; ageFillEl.style.width = (b - a) + '%'; } if (bMinEl) { bMinEl.style.left = a + '%'; bMinEl.textContent = a; } if (bMaxEl) { bMaxEl.style.left = b + '%'; bMaxEl.textContent = b; } state.age_from = a; state.age_to = b; state.page = 1; }
+    function syncAgeChips() { const chips = document.querySelectorAll('#ageChips .chip'); const isDefault = state.age_is_null === 0 && state.age_from === 0 && state.age_to === 100; chips.forEach(c => { const v = c.dataset.age ?? ''; if (state.age_is_null === 1) { c.setAttribute('aria-checked', v === 'unknown' ? 'true' : 'false'); } else if (isDefault) { c.setAttribute('aria-checked', v === '' ? 'true' : 'false'); } else { c.setAttribute('aria-checked', 'false'); } }); }
+    function setAgeUnknownUI() { state.age_is_null = 1; setAgeDisabled(true); if (bMinEl) bMinEl.textContent = '—'; if (bMaxEl) bMaxEl.textContent = '—'; }
+    function setAgeRangeUI(a, b) { a = Math.max(0, Math.min(100, Number(a))); b = Math.max(0, Math.min(100, Number(b))); if (a > b) { const t = a; a = b; b = t; } if (ageMinEl) ageMinEl.value = a; if (ageMaxEl) ageMaxEl.value = b; if (ageFillEl) { ageFillEl.style.left = a + '%'; ageFillEl.style.width = (b - a) + '%'; } if (bMinEl) { bMinEl.style.left = a + '%'; bMinEl.textContent = a; } if (bMaxEl) { bMaxEl.style.left = b + '%'; bMaxEl.textContent = b; } state.age_is_null = 0; state.age_from = a; state.age_to = b; setAgeDisabled(false); }
+    updateAge(); syncAgeChips();
+    [ageMinEl, ageMaxEl].forEach(el => el && el.addEventListener('input', () => { if (state.age_is_null === 1) { state.age_is_null = 0; setAgeDisabled(false); } updateAge(); syncAgeChips(); }));
+    (function () { const chips = document.querySelectorAll('#ageChips .chip'); chips.forEach(b => b.addEventListener('click', () => { const v = b.dataset.age ?? ''; if (v === '') { setAgeRangeUI(0, 100); } else if (v === 'unknown') { setAgeUnknownUI(); } syncAgeChips(); state.page = 1; })); })();
+
+    // CT chips
+    async function renderCTChips() {
+      try {
+        const r = await fetch(`${API_BASE}/api/facets?fields=ct_phase&top_k=10&guarantee=1`, { cache: 'no-store' }); if (!r.ok) throw new Error('HTTP ' + r.status);
+        const data = await r.json(); const box = $('#ctChips'); const list = (data.facets && data.facets.ct_phase) ? data.facets.ct_phase : [];
+        const parts = []; const anyOn = (!state.ct_is_null && (!state.ct_phase || state.ct_phase === '')); const unkOn = (state.ct_is_null === 1 || state.ct_is_null === true);
+        parts.push(`<button type="button" class="chip" data-ct="" ${anyOn ? 'aria-checked="true"' : ''}>Any</button>`);
+        parts.push(`<button type="button" class="chip" data-ct="unknown" ${unkOn ? 'aria-checked="true"' : ''}>Unknown</button>`);
+        list.forEach(x => { const v = String(x.value || '').trim(); if (!v) return; const on = (!state.ct_is_null && state.ct_phase === v); parts.push(`<button type="button" class="chip" data-ct="${v.replace(/"/g, '&quot;')}" ${on ? 'aria-checked="true"' : ''}>${v}</button>`); });
+        box.innerHTML = parts.join('');
+        $$('#ctChips .chip').forEach(b => b.onclick = () => { const v = b.dataset.ct ?? ''; if (v === 'unknown') { state.ct_is_null = 1; state.ct_phase = ''; } else { state.ct_is_null = 0; state.ct_phase = v; } state.page = 1; renderCTChips(); searchRun(); });
+        const hint = $('#ctFacetLoading'); if (hint) hint.remove();
+      } catch (e) { const hint = $('#ctFacetLoading'); if (hint) hint.textContent = ''; console.error('[facets.ct]', e); }
+    }
+
+    function renderCards(items) { $('#cards').innerHTML = items.map(x => { const n = normRow(x); return `<div class="card"><div class="head">${tumorTag(n)}<div style="font-weight:800">${n.sex || '—'} · ${n.age !== '' ? n.age : '—'} yrs</div></div><div class="kv"><div><i class="ri-scan-line"></i> ${n.ct || '—'}</div><div><i class="ri-calendar-line"></i> ${n.yr || '—'}</div><div><i class="ri-building-2-line"></i> ${n.man || 'Unknown'}${n.mdl ? (' / ' + n.mdl) : ''}</div></div><div class="caseId"><a class="caseLink" target="_blank" href="${n.cid_href}">${n.cid_text || '—'}</a></div></div>`; }).join(''); }
+    function renderTable(items) { $('#table tbody').innerHTML = items.map(x => { const n = normRow(x); return `<tr><td>${tumorTag(n)}</td><td>${n.sex || '—'} / ${n.age !== '' ? n.age : '—'}</td><td>${n.ct || '—'}</td><td>${n.man || 'Unknown'} / ${n.mdl || '—'}</td><td>${n.yr || '—'}</td><td><a target="_blank" href="${n.cid_href}">${n.cid_text || '—'}</a></td></tr>`; }).join(''); }
+    function renderPager(total, page, pages) {
+      const box = $('#pager'); if (pages <= 1) { box.style.display = 'none'; box.innerHTML = ''; return; }
+      box.style.display = 'flex';
+      const part = [], jump = 10, btn = (t, p, dis) => `<span class="btnp" data-p="${p}" ${dis ? 'aria-disabled="true"' : ''}>${t}</span>`;
+      part.push(btn('First', 1, page === 1)); part.push(btn('« 10', Math.max(1, page - jump), page === 1)); part.push(btn('‹', Math.max(1, page - 1), page === 1));
+      const win = 10, start = Math.floor((page - 1) / win) * win + 1, end = Math.min(start + win - 1, pages); for (let i = start; i <= end; i++) part.push(`<span class="btnp ${i === page ? 'active' : ''}" data-p="${i}">${i}</span>`);
+      part.push(btn('›', Math.min(pages, page + 1), page === pages)); part.push(btn('10 »', Math.min(pages, page + jump), page === pages)); part.push(btn('Last', pages, page === pages));
+      box.innerHTML = part.join(''); $$('#pager .btnp').forEach(el => el.onclick = () => { const p = parseInt(el.dataset.p); if (!p) return; state.page = p; searchRun(); });
+    }
+    function setMode(next) {
+      mode = next;
+      $$('#viewSplit .half').forEach(b => b.classList.remove('on', 'cards', 'table'));
+      const btn = $(`#viewSplit .half[data-mode="${mode}"]`);
+      btn.classList.add('on', mode.endsWith('cards') ? 'cards' : 'table');
+      const showCards = mode.endsWith('cards');
+      $('#cards').style.display = showCards ? '' : 'none';
+      $('#table').style.display = showCards ? 'none' : '';
+      const items = resultsCache; showCards ? renderCards(items) : renderTable(items);
+      $('#pager').style.display = (state.per_page !== 'all' && (resultsCache?.length || 0) > 0) ? 'flex' : 'none';
+      updateStatus();
+    }
+    function updateStatus() { const { total, page, pages } = resultsMeta; const bar = $('#resultsBarInline'); if (bar) bar.textContent = `Results: ${total} cases (page ${page}/${pages})`; }
+
+    function qs() {
+      const p = new URLSearchParams();
+      if (state.caseid) p.set('caseid', state.caseid);
+      if (state.tumor !== '') p.set('tumor', state.tumor);
+      if (state.sex) p.set('sex', state.sex);
+      if (state.tumor_is_null) p.set('tumor_is_null', '1');
+      if (state.sex_is_null) p.set('sex_is_null', '1');
+      if (state.ct_phase) p.set('ct_phase', state.ct_phase);
+      if (state.ct_is_null) p.set('ct_is_null', '1');
+      if (state.manufacturer_is_null) p.set('manufacturer_is_null', '1'); else if (state.manufacturer) p.set('manufacturer', state.manufacturer);
+      if (state.year_from) p.set('year_from', state.year_from);
+      if (state.year_to) p.set('year_to', state.year_to);
+      if (state.year_is_null) p.set('year_is_null', '1');
+      if (state.age_is_null) { p.set('age_is_null', '1'); } else { if (!(state.age_from === 0 && state.age_to === 100)) { p.set('age_from', state.age_from); p.set('age_to', state.age_to); } }
+      p.set('page', state.page);
+      p.set('per_page', state.per_page === 'all' ? '1000000' : state.per_page);
+      return p.toString();
+    }
+
+    async function searchRun() {
+      const myTok = ++fetchToken;
+      try {
+        const res = await fetch(`${API_BASE}/api/search?` + qs(), { cache: 'no-store' }); if (myTok !== fetchToken) return; if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json(); resultsCache = data.items || []; resultsMeta = { total: data.total || 0, page: data.page || 1, pages: data.pages || 1 };
+        setMode(mode); if (state.per_page !== 'all') renderPager(resultsMeta.total, resultsMeta.page, resultsMeta.pages); else $('#pager').style.display = 'none';
+        if (resultsMeta.total === 0) { $('#empty').style.display = ''; await buildSmartSuggestions(); setMode('res-cards'); } else { $('#empty').style.display = 'none'; }
+      } catch (err) { $('#pager').style.display = 'none'; console.error(err); }
+      finally { try { await refreshYearHints(); } catch { } renderCTChips(); }
+    }
+
+    async function buildSmartSuggestions() {
+      try {
+        const url1 = `${API_BASE}/api/facets?fields=ct_phase,manufacturer&top_k=6&` + qs();
+        let r = await fetch(url1, { cache: 'no-store' }), data = await r.json();
+        if (((data?.facets?.ct_phase?.length) || 0) + ((data?.facets?.manufacturer?.length) || 0) === 0) { const url2 = `${API_BASE}/api/facets?fields=ct_phase,manufacturer&top_k=6`; r = await fetch(url2, { cache: 'no-store' }); data = await r.json(); }
+        const chips = []; (data.facets?.ct_phase || []).slice(0, 3).forEach(x => chips.push({ k: 'ct_phase', v: x.value, label: `CT: ${x.value}` })); (data.facets?.manufacturer || []).slice(0, 3).forEach(x => chips.push({ k: 'manufacturer', v: x.value, label: `Mfr: ${x.value}` }));
+        $('#smart').innerHTML = chips.map(t => `<button class="chip" data-k="${t.k}" data-v="${t.v}">${t.label}</button>`).join('');
+        $$('#smart .chip').forEach(b => b.onclick = () => { const k = b.dataset.k, v = b.dataset.v; if (k === 'ct_phase') state.ct_phase = v; if (k === 'manufacturer') state.manufacturer = v; state.page = 1; renderCTChips(); searchRun(); });
+      } catch { $('#smart').innerHTML = ''; }
+    }
+
+    // Advanced: Manufacturer & Study year
+    async function renderAdvancedFacets() {
+      try {
+        const r = await fetch(`${API_BASE}/api/facets?fields=manufacturer,year&top_k=12&` + qs(), { cache: 'no-store' });
+        const data = await r.json();
+        const mfs = (data.facets?.manufacturer || []).filter(x => x && x.value).map(x => ({ v: x.value, c: x.count }));
+        const html = `<div class="advSec">
+          <div class="advTitle" style="font-weight:800;color:#0a2a66;margin-bottom:8px">Manufacturer</div>
+          <div class="chips" id="mfrChipsAdv">
+            <button type="button" class="chip" data-mfr="" aria-checked="true">Any</button>
+            ${mfs.map(o => `<button type="button" class="chip" data-mfr="${o.v}">${o.v}</button>`).join('')}
+            <button type="button" class="chip" data-mfr="Unknown">Unknown</button>
+          </div>
+        </div>
+        <div class="advSec">
+          <div class="advTitle" style="font-weight:800;color:#0a2a66;margin-bottom:8px">Study year</div>
+          <div class="chips" id="yearChipsAdv" style="margin-bottom:8px">
+            <button type="button" class="chip" data-year="" aria-checked="true">Any</button>
+            <button type="button" class="chip" data-year="unknown">Unknown</button>
+          </div>
+          <div id="yearInputs" class="yearbox" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end">
+            <label style="display:block;font-size:12px;color:#0a2a66;font-weight:800">From
+              <input type="number" id="adv_year_from" placeholder="2010"/>
+            </label>
+            <label style="display:block;font-size:12px;color:#0a2a66;font-weight:800">To
+              <input type="number" id="adv_year_to" placeholder="2024"/>
+            </label>
+          </div>
+        </div>`;
+        $('#advContent').innerHTML = html;
+
+        if (!Array.isArray(state.manufacturer_list)) state.manufacturer_list = [];
+        function syncMfrUI() {
+          const set = new Set(state.manufacturer_list);
+          $$('#mfrChipsAdv .chip').forEach(b => {
+            const v = b.dataset.mfr ?? '';
+            if (v === '') { b.setAttribute('aria-checked', (set.size === 0 && !state.manufacturer_is_null) ? 'true' : 'false'); }
+            else if (v === 'Unknown') { b.setAttribute('aria-checked', state.manufacturer_is_null ? 'true' : 'false'); }
+            else { b.setAttribute('aria-checked', set.has(v) ? 'true' : 'false'); }
+          });
+          state.manufacturer = state.manufacturer_is_null ? '' : state.manufacturer_list.join(',');
+        }
+        $$('#mfrChipsAdv .chip').forEach(b => b.onclick = () => {
+          const v = b.dataset.mfr ?? '';
+          if (v === '') { state.manufacturer_is_null = 0; state.manufacturer_list = []; }
+          else if (v === 'Unknown') { state.manufacturer_is_null = 1; state.manufacturer_list = []; }
+          else { state.manufacturer_is_null = 0; const s = new Set(state.manufacturer_list); s.has(v) ? s.delete(v) : s.add(v); state.manufacturer_list = [...s]; }
+          state.page = 1; syncMfrUI();
+        });
+        syncMfrUI();
+
+        setupYearBindings(); syncYearUI();
+      } catch (e) { console.error('[advanced]', e); }
+    }
+
+    function syncYearUI() {
+      $$('#yearChipsAdv .chip').forEach(b => {
+        const v = b.dataset.year ?? '';
+        if (v === '') b.setAttribute('aria-checked', (state.year_from === '' && state.year_to === '' && !state.year_is_null) ? 'true' : 'false');
+        else if (v === 'unknown') b.setAttribute('aria-checked', state.year_is_null ? 'true' : 'false');
+      });
+      setYearDisabled(state.year_is_null === 1);
+      const yf = $('#adv_year_from'), yt = $('#adv_year_to');
+      if (yf) yf.value = (!state.year_is_null && state.year_from !== '') ? String(state.year_from) : '';
+      if (yt) yt.value = (!state.year_is_null && state.year_to !== '') ? String(state.year_to) : '';
+    }
+    function setupYearBindings() {
+      $$('#yearChipsAdv .chip').forEach(b => {
+        _bindOnce(b, 'click', function onYearChip() {
+          const v = b.dataset.year ?? '';
+          if (v === '') { state.year_is_null = 0; state.year_from = ''; state.year_to = ''; }
+          else if (v === 'unknown') { state.year_is_null = 1; state.year_from = ''; state.year_to = ''; }
+          state.page = 1; syncYearUI();
+        }, 'yearChip');
+      });
+      const yf = $('#adv_year_from'), yt = $('#adv_year_to');
+      const _num = s => { const t = String(s ?? '').trim(); if (!t) return ''; const n = parseInt(t, 10); return Number.isFinite(n) ? String(n) : ''; };
+      if (yf) _bindOnce(yf, 'input', function onFrom(e) { state.year_is_null = 0; const v = _num(e.target.value); state.year_from = v; if (state.year_to !== '' && v !== '' && Number(v) > Number(state.year_to)) state.year_to = v; syncYearUI(); }, 'fromInput');
+      if (yt) _bindOnce(yt, 'input', function onTo(e) { state.year_is_null = 0; const v = _num(e.target.value); state.year_to = v; if (state.year_from !== '' && v !== '' && Number(state.year_from) > Number(v)) state.year_from = v; syncYearUI(); }, 'toInput');
+      if (yf) _bindOnce(yf, 'blur', e => { const v = _num(e.target.value); if (v !== e.target.value.trim()) e.target.value = v; }, 'fromBlur');
+      if (yt) _bindOnce(yt, 'blur', e => { const v = _num(e.target.value); if (v !== e.target.value.trim()) e.target.value = v; }, 'toBlur');
+    }
+    async function refreshYearHints() {
+      try {
+        const res = await fetch(`${API_BASE}/api/facets?fields=year&top_k=0&guarantee=1&` + qs(), { cache: 'no-store' }); if (!res.ok) return;
+        const data = await res.json(); const yr = data?.year_range || {};
+        const yf = $('#adv_year_from'); const yt = $('#adv_year_to');
+        if (yf && !yf.value) yf.placeholder = (yr.min != null ? String(yr.min) : '');
+        if (yt && !yt.value) yt.placeholder = (yr.max != null ? String(yr.max) : '');
+      } catch { }
+    }
+
+    // Recommended + shuffle
+    function recBusy(b) { const btn = $('#shuffleBtn'); if (!btn) return; btn.setAttribute('aria-busy', b ? 'true' : 'false'); }
+    function randPick(arr, n) { const used = new Set(), out = []; if (!Array.isArray(arr)) return out; n = Math.max(0, Math.min(n, arr.length)); while (out.length < n) { const i = Math.floor(Math.random() * arr.length); if (!used.has(i)) { used.add(i); out.push(arr[i]); } } return out; }
+    async function loadRecommended() {
+      recBusy(true); let items = [];
+      try {
+        const ts = Date.now(); const urlRand = `${API_BASE}/api/random?scope=filtered&n=3&` + qs() + `&ts=${ts}`;
+        const r = await fetch(urlRand, { cache: 'no-store' }); if (!r.ok) throw new Error('no /api/random: ' + r.status);
+        const data = await r.json(); items = data.items || [];
+      } catch (e) {
+        try {
+          const p = new URLSearchParams(qs()); p.set('page', '1'); p.set('per_page', '1000000');
+          const r2 = await fetch(`${API_BASE}/api/search?` + p.toString(), { cache: 'no-store' });
+          const data2 = await r2.json(); const pool = Array.isArray(data2.items) ? data2.items : [];
+          items = randPick(pool, 3);
+        } catch (err2) { console.error('[recs fallback]', err2); items = []; }
+      }
+      $('#recList').innerHTML = (items || []).map(buildRecRow).join(''); recBusy(false);
+    }
+    function buildRecRow(m, idx) {
+      const n = normRow(m);
+      const manForData = (n.man && n.man.trim()) ? n.man : ''; const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#39;');
+      const isNullMan = !manForData; const dataMan = esc(isNullMan ? 'Unknown' : manForData);
+      const tClass = (String(n.tumor).trim() === '1') ? 'y' : ((String(n.tumor).trim() === '0') ? 'n' : ''); const tText = (tClass === 'y') ? 'Tumor' : ((tClass === 'n') ? 'No tumor' : '');
+      const badge = tClass ? (`<span class="tBadge ${tClass}">${tText}</span>`) : '';
+      return `<div class="rec" data-idx="${idx}" data-tumor="${n.tumor}" data-sex="${n.sex}" data-ct="${n.ct}" data-man="${dataMan}" data-man-null="${isNullMan ? '1' : '0'}" data-yr="${n.yr}" data-age="${n.age}">
+        ${badge}
+        <div class="recMain">
+          <span class="recId"><a href="${n.cid_href}" target="_blank">${n.cid_text || '—'}</a></span>
+          <span class="small"><i class="ri-user-line"></i>${n.sex || '—'} · ${n.age !== '' ? n.age : '—'} yrs</span>
+          <span class="small"><i class="ri-scan-line"></i>${n.ct || '—'}</span>
+          <span class="small"><i class="ri-calendar-line"></i>${n.yr || '—'}</span>
+          <span class="small"><i class="ri-building-2-line"></i>${n.man || 'Unknown'}</span>
+        </div>
+        <div class="recBtns"><button class="btn outline recApply" type="button">Apply filters</button></div>
+      </div>`;
+    }
+
+    async function refreshAdvancedUI() { const advBox = document.getElementById('advBox'); if (advBox && advBox.classList.contains('open')) { await renderAdvancedFacets(); } }
+
+    // Apply filters from Recommended（含 Study year Unknown、Age +/-10）
+    document.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.recApply'); if (!btn) return;
+      e.preventDefault();
+      const card = btn.closest('.rec'); if (!card) return;
+      const t = card.dataset.tumor, s = card.dataset.sex, ct = card.dataset.ct, mf = card.dataset.man, mfNull = (card.dataset.manNull === '1'), yrRaw = (card.dataset.yr || '').trim(), ageRaw = (card.dataset.age || '').toString().trim();
+
+      if (t === '1' || t === '0') { state.tumor_is_null = 0; setChip('tumor', t); } else { state.tumor_is_null = 1; setChip('tumor', ''); }
+      if (s === 'M' || s === 'F') { state.sex_is_null = 0; setChip('sex', s); } else { state.sex_is_null = 1; setChip('sex', ''); }
+      if (ct && String(ct).trim() !== '') { state.ct_phase = ct; state.ct_is_null = 0; } else { state.ct_phase = ''; state.ct_is_null = 1; }
+      if (mfNull || !mf || mf.trim().toLowerCase() === 'unknown') { state.manufacturer_is_null = 1; state.manufacturer_list = []; state.manufacturer = ''; }
+      else { state.manufacturer_is_null = 0; state.manufacturer_list = [mf]; state.manufacturer = mf; }
+
+      const yrIsUnknown = !yrRaw || yrRaw === '—' || (yrRaw.toLowerCase && yrRaw.toLowerCase() === 'unknown') || !Number.isFinite(parseInt(yrRaw, 10));
+      if (yrIsUnknown) { state.year_is_null = 1; state.year_from = ''; state.year_to = ''; }
+      else { const y = String(parseInt(yrRaw, 10)); state.year_is_null = 0; state.year_from = y; state.year_to = y; }
+
+      if (!ageRaw || ageRaw === '—' || ageRaw.toLowerCase() === 'unknown' || !Number.isFinite(parseInt(ageRaw, 10))) { setAgeUnknownUI(); }
+      else { const A = parseInt(ageRaw, 10); setAgeRangeUI(Math.max(0, A - 10), Math.min(100, A + 10)); }
+      syncAgeChips();
+
+      const yfa = document.getElementById('adv_year_from'); const yta = document.getElementById('adv_year_to');
+      if (yfa) yfa.value = state.year_from; if (yta) yta.value = state.year_to;
+      try { syncYearUI(); setYearDisabled(state.year_is_null === 1); } catch { }
+
+      state.page = 1; setMode('res-cards');
+      await refreshAdvancedUI(); await searchRun();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Advanced 面板：切換時，同步讓上方卡片變「glued」
+    if ($('#advBtn')) $('#advBtn').onclick = async () => {
+      const box = $('#advBox'); const open = !box.classList.contains('open');
+      box.classList.toggle('open', open);
+      const topCard = $('#filtersBox');
+      if (topCard) { topCard.classList.toggle('glued', open); }
+      if (open) { await renderAdvancedFacets(); setYearDisabled(state.year_is_null === 1); }
+    };
+
+    // Search / Reset / View
+    $('#searchBtn').onclick = () => { state.page = 1; setMode('res-cards'); searchRun(); };
+    $('#resetBtn').onclick = async () => {
+      state.caseid = ''; const cid = $('#caseid'); if (cid) cid.value = '';
+      setChip('tumor', ''); setChip('sex', ''); state.tumor_is_null = 0; state.sex_is_null = 0;
+      setAgeRangeUI(0, 100); syncAgeChips();
+      state.ct_phase = ''; state.ct_is_null = 0; await renderCTChips(); $$('#ctChips .chip').forEach(b => { const v = b.dataset.ct ?? ''; b.setAttribute('aria-checked', v === '' ? 'true' : 'false'); });
+
+      $('#advBox').classList.remove('open'); const topCard = $('#filtersBox'); if (topCard) topCard.classList.remove('glued');
+      const advContent = $('#advContent'); if (advContent) advContent.innerHTML = '';
+      state.manufacturer_list = []; state.manufacturer = ''; state.manufacturer_is_null = 0;
+      state.year_from = ''; state.year_to = ''; state.year_is_null = 0; setYearDisabled(false);
+
+      const perSel = $('#perPage'); if (perSel) perSel.value = '20'; state.per_page = '20';
+      state.page = 1; setMode('res-cards');
+      const pager = $('#pager'); if (pager) { pager.innerHTML = ''; pager.style.display = 'none'; }
+      try { await loadRecommended(); } catch { }
+      await searchRun();
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { }
+    };
+    $('#perPage').onchange = e => { state.per_page = e.target.value; state.page = 1; setMode('res-cards'); searchRun(); };
+    $('#viewSplit').addEventListener('click', (e) => { const m = e.target.dataset.mode; if (!m) return; setMode(m); });
+    document.getElementById('shuffleBtn')?.addEventListener('click', (e) => { e.preventDefault(); loadRecommended(); }, { passive: true });
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      setMode('res-cards'); await loadRecommended(); await searchRun();
+      try { setYearDisabled(state.year_is_null === 1); } catch { } syncAgeChips();
+    });
+  </script>
+</body>
+
+</html>
